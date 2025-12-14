@@ -21,6 +21,22 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Verify Version Match
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/}
+
+          GRADLE_VERSION=$(grep 'versionName' app/build.gradle.kts | sed -E 's/.*versionName = "(.*)".*/\1/')
+          
+          echo "Git Tag Version: $TAG_VERSION"
+          echo "Gradle Version: $GRADLE_VERSION"
+
+          if [ "$TAG_VERSION" != "$GRADLE_VERSION" ]; then
+            echo "Error: Version mismatch!"
+            echo "Tag is '$TAG_VERSION' but build.gradle.kts says '$GRADLE_VERSION'"
+            exit 1
+          fi
+          echo "Version match confirmed."
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
