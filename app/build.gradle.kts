@@ -18,10 +18,13 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = File(projectDir, "release-keystore.jks")
-            storePassword = System.getenv("storePassword")
-            keyAlias = System.getenv("keyAlias")
-            keyPassword = System.getenv("keyPassword")
+            val keystoreFile = System.getenv("SIGNING_KEY_STORE_PATH")?.let { file(it) }
+                ?: file("release-keystore.jks")
+
+            storeFile = keystoreFile
+            storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: System.getenv("storePassword")
+            keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: System.getenv("keyAlias")
+            keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: System.getenv("keyPassword")
         }
     }
 
@@ -58,14 +61,14 @@ android {
     }
 
     packaging {
-		resources.excludes += "DebugProbesKt.bin"
+        resources.excludes += "DebugProbesKt.bin"
         resources.excludes += "**/kotlin/**"
         resources.excludes += "kotlin-tooling-metadata.json"
     }
 }
 
 dependencies {
-	implementation(libs.androidx.annotation)
+    implementation(libs.androidx.annotation)
 
     compileOnly(libs.xposed.api)
     compileOnly(libs.xposed.api.sources)
