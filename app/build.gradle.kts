@@ -15,8 +15,8 @@ android {
         applicationId = "io.github.jjhitel.dezux"
         minSdk = 24
         targetSdk = 36
-        versionCode = 102
-        versionName = "v0.1.2"
+        versionCode = 103
+        versionName = "v0.1.3"
     }
 
     signingConfigs {
