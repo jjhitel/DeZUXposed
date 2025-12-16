@@ -189,6 +189,7 @@ class MainHook : IYukiHookXposedInit {
                 }
             }
         }
+
     }
 
     private fun PackageParam.applyAppSettingsHooks() {
@@ -209,6 +210,7 @@ class MainHook : IYukiHookXposedInit {
                 }
             }
         }
+
         findClass("com.lenovo.common.utils.LenovoUtils").hook {
             injectMember {
                 method {
@@ -223,6 +225,7 @@ class MainHook : IYukiHookXposedInit {
                 }
             }
         }
+
         findClass("com.lenovo.settings.applications.appclone.AppCloneUtils").hook {
             injectMember {
                 method {
@@ -237,6 +240,18 @@ class MainHook : IYukiHookXposedInit {
                 }
             }
         }
+
+        // Enable Restore Preinstalled Apps Preference.
+		findClass("com.lenovo.settings.applications.preinstallrestore.RestorePreinstalledAppsPreferenceController").hook {
+            injectMember {
+                method {
+                    name = "getAvailabilityStatus"
+                    emptyParam()
+                }
+                replaceAny { 0 }
+            }
+        }
+
     }
 
     private fun PackageParam.applyGameServiceHooks() {
