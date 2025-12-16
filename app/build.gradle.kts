@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,18 +21,35 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystoreFile = System.getenv("SIGNING_KEY_STORE_PATH")?.let { file(it) }
-                ?: file("release-keystore.jks")
+            val keystorePropertiesFile = rootProject.file("local.properties")
+            val keystoreProperties = Properties()
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+            }
 
-            storeFile = keystoreFile
-            storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: System.getenv("storePassword")
-            keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: System.getenv("keyAlias")
-            keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: System.getenv("keyPassword")
+            val storePath = keystoreProperties.getProperty("storeFile") 
+                ?: System.getenv("SIGNING_KEY_STORE_PATH")
+            
+            val storePwd = keystoreProperties.getProperty("storePassword") 
+                ?: System.getenv("SIGNING_STORE_PASSWORD")
+            
+            val keyAliasVal = keystoreProperties.getProperty("keyAlias") 
+                ?: System.getenv("SIGNING_KEY_ALIAS")
+            
+            val keyPwd = keystoreProperties.getProperty("keyPassword") 
+                ?: System.getenv("SIGNING_KEY_PASSWORD")
+
+            if (!storePath.isNullOrEmpty() && !storePwd.isNullOrEmpty()) {
+                storeFile = file(storePath)
+                storePassword = storePwd
+                keyAlias = keyAliasVal
+                keyPassword = keyPwd
+            }
         }
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
