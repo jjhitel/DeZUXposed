@@ -14,6 +14,7 @@ import io.github.jjhitel.dezux.R
 class MainHook : IYukiHookXposedInit {
 
     private val isInsideHeaderCheck = ThreadLocal<Boolean>()
+    private val isInsideMainlineCheck = ThreadLocal<Boolean>()
 
     override fun onInit() = configs {
         isDebug = false
@@ -187,6 +188,23 @@ class MainHook : IYukiHookXposedInit {
             }
         }
 
+        findClass("com.android.settings.deviceinfo.firmwareversion.MainlineModuleVersionPreferenceController").hook {
+            injectMember {
+                method {
+                    name = "getAvailabilityStatus"
+                    emptyParam()
+                }
+                replaceAny {
+                    isInsideMainlineCheck.set(true)
+                    try {
+                        return@replaceAny callOriginal()
+                    } finally {
+                        isInsideMainlineCheck.set(false)
+                    }
+                }
+            }
+        }
+
         findClass("com.lenovo.common.utils.LenovoUtils").hook {
             injectMember {
                 method {
@@ -196,6 +214,18 @@ class MainHook : IYukiHookXposedInit {
                 replaceAny {
                     if (isInsideHeaderCheck.get() == true) {
                         return@replaceAny true
+                    }
+                    return@replaceAny callOriginal()
+                }
+            }
+            injectMember {
+                method {
+                    name = "isRowVersion"
+                    emptyParam()
+                }
+                replaceAny {
+                    if (isInsideMainlineCheck.get() == true) {
+                        return@replaceAny false
                     }
                     return@replaceAny callOriginal()
                 }
