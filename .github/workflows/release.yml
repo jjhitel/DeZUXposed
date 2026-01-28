@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,6 +22,7 @@ jobs:
           java-version: '21'
 
       - name: Verify Version Match
+        shell: bash
         run: |
           TAG_VERSION=${GITHUB_REF#refs/tags/}
 
@@ -41,6 +42,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Decode Keystore
+        shell: bash
         run: |
           echo "${{ secrets.SIGNING_KEY_STORE_BASE64 }}" | base64 --decode > app/release-keystore.jks
 
@@ -53,7 +55,7 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: .\gradlew.bat assembleRelease
 
       - name: Rename APK
         run: |
