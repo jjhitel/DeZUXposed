@@ -247,6 +247,17 @@ class MainHook : IYukiHookXposedInit {
             }
         }
 
+        // Enable Google Services Preference.
+        findClass("com.lenovo.settings.applications.GoogleServicesPreferenceController").hook {
+            injectMember {
+                method {
+                    name = "getAvailabilityStatus"
+                    emptyParam()
+                }
+                replaceAny { 0 }
+            }
+        }
+
         // Enable Restore Preinstalled Apps Preference.
 		findClass("com.lenovo.settings.applications.preinstallrestore.RestorePreinstalledAppsPreferenceController").hook {
             injectMember {
